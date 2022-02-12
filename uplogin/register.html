@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Sign Up</title>
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+     <style>
+            body{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                width: 100vw;
+                margin: 0px; 
+            }
+        </style>        
+</head>
+
+<body>
+
+    <div class="mb-5">
+                <h3 class="mb-3">Sign Up</h3>
+                <input type="text" placeholder="Fullname" id="nameInp" class="form-control mb-3">
+                <input type="text" placeholder="Email" id="emailInp" class="form-control mb-3">
+                <input type="text" placeholder="Username" id="userInp" class="form-control mb-3">
+                <input type="password" placeholder="Password" id="passInp" class="form-control mb-3">
+                <button type="text" id="sub_btn" class="btn w-100 btn-outline-primary mb-3">Sign Up</button>
+                <a href="login.html" class="badge badge-secondary py-1 w-100">Already Have An Account?</a>
+    </div>
+
+    <script type="module">
+//-----------------------FIREBASE CONFIG-------------------------------------------------------------------------------------------------------//
+          import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js";
+        
+const firebaseConfig = {
+    apiKey: "AIzaSyBzYBPdI4JOgAs-HWQxJR-7GN5liTWFgbU",
+        authDomain: "up-login-afe7d.firebaseapp.com",
+        databaseURL: "https://up-login-afe7d-default-rtdb.firebaseio.com",
+        projectId: "up-login-afe7d",
+        storageBucket: "up-login-afe7d.appspot.com",
+        messagingSenderId: "492165626841",
+        appId: "1:492165626841:web:82a44341d14d3e0e0ff7c8"
+  };
+        
+          const app = initializeApp(firebaseConfig);
+        
+          import { getDatabase, ref, set, child, get }
+             from "https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js";
+        
+          const db = getDatabase();
+
+//------------------------------THE REFRENECES-------------------------------------------------------------------------------------------------//
+
+          const name = document.getElementById('nameInp');
+          const email = document.getElementById('emailInp');
+          const username = document.getElementById('userInp');
+          const pass = document.getElementById('passInp');
+          const submit = document.getElementById('sub_btn');
+
+//---------------------------------VALIDATION--------------------------------------------------------------------------------------------------//
+
+          function isEmptyOrSpaces(str){
+              return str === null || str.match(/^ *$/) !== null;
+          }
+          
+          function Validation(){
+            let nameregex = /^[a-zA-Z\s]+$/;
+            let emailregex = /^[a-zA-Z0-9]+@(gmail|yahoo|outlook)\.com$/;
+            let userregex = /^[a-zA-Z0-9]{5,}$/;
+
+            if(isEmptyOrSpaces(name.value) || isEmptyOrSpaces(email.value) || isEmptyOrSpaces(username.value) ||
+                isEmptyOrSpaces(pass.value)){
+                    alert("you cannot left any field empty");
+                    return false;
+                }
+
+            if(!nameregex.test(name.value)){
+                  alert("the name should only contain alphabets!");
+                  return false;
+            }
+
+            if(!emailregex.test(email.value)){
+                  alert("enter a valid email");
+                  return false;
+            }
+
+            if(!userregex.test(username.value)){
+                  alert("-username can only be alphanumeric\n-username must be aleast 5 characters\n-username cannot contain spaces");
+                  return false;
+            }
+
+            return true;
+        }
+
+//---------------------------------REGISTER USER TO FIREBASE-----------------------------------------------------------------------------------//
+
+     function RegisterUser(){
+        if(!Validation()){
+             return;
+        };
+         const dbRef = ref(db);
+
+         get(child(dbRef, "UsersList/"+ username.value)).then((snapshot)=>{
+             if(snapshot.exists()){
+                 alert("Account Already Exist!");
+            }
+
+            else{
+                 set(ref(db, "UsersList/"+ username.value),
+                {
+                    fullname: name.value,
+                    email: email.value,
+                    username: username.value,
+                    password: encPass()
+                })
+                .then(()=>{
+                    alert("user added successfully");
+                })
+                .catch((error)=>{
+                    alert("error"+ error);
+                })
+            }
+        });   
+    }
+
+//---------------------------------ENCRIPTION-------------------------------------------------------------------------------------------------//
+   
+    function encPass(){
+        var pass12 = CryptoJS.AES.encrypt(pass.value, pass.value);
+        return pass12.toString();
+    } 
+
+//---------------------------------ASSIGN THE EVENTS------------------------------------------------------------------------------------------//
+
+    submit.addEventListener('click', RegisterUser);
+
+</script>
+</body>
+</html>
